@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv='content-type' content='text/html;charset=utf8'>
+  <meta name='generator' content='Ronn-NG/v0.9.1 (http://github.com/apjanke/ronn-ng/tree/0.9.1)'>
+  <title>git-commitiq(1) - semantic commit summaries as a git subcommand</title>
+  <style type='text/css' media='all'>
+  /* style: man */
+  body#manpage {margin:0}
+  .mp {max-width:100ex;padding:0 9ex 1ex 4ex}
+  .mp p,.mp pre,.mp ul,.mp ol,.mp dl {margin:0 0 20px 0}
+  .mp h2 {margin:10px 0 0 0}
+  .mp > p,.mp > pre,.mp > ul,.mp > ol,.mp > dl {margin-left:8ex}
+  .mp h3 {margin:0 0 0 4ex}
+  .mp dt {margin:0;clear:left}
+  .mp dt.flush {float:left;width:8ex}
+  .mp dd {margin:0 0 0 9ex}
+  .mp h1,.mp h2,.mp h3,.mp h4 {clear:left}
+  .mp pre {margin-bottom:20px}
+  .mp pre+h2,.mp pre+h3 {margin-top:22px}
+  .mp h2+pre,.mp h3+pre {margin-top:5px}
+  .mp img {display:block;margin:auto}
+  .mp h1.man-title {display:none}
+  .mp,.mp code,.mp pre,.mp tt,.mp kbd,.mp samp,.mp h3,.mp h4 {font-family:monospace;font-size:14px;line-height:1.42857142857143}
+  .mp h2 {font-size:16px;line-height:1.25}
+  .mp h1 {font-size:20px;line-height:2}
+  .mp {text-align:justify;background:#fff}
+  .mp,.mp code,.mp pre,.mp pre code,.mp tt,.mp kbd,.mp samp {color:#131211}
+  .mp h1,.mp h2,.mp h3,.mp h4 {color:#030201}
+  .mp u {text-decoration:underline}
+  .mp code,.mp strong,.mp b {font-weight:bold;color:#131211}
+  .mp em,.mp var {font-style:italic;color:#232221;text-decoration:none}
+  .mp a,.mp a:link,.mp a:hover,.mp a code,.mp a pre,.mp a tt,.mp a kbd,.mp a samp {color:#0000ff}
+  .mp b.man-ref {font-weight:normal;color:#434241}
+  .mp pre {padding:0 4ex}
+  .mp pre code {font-weight:normal;color:#434241}
+  .mp h2+pre,h3+pre {padding-left:0}
+  ol.man-decor,ol.man-decor li {margin:3px 0 10px 0;padding:0;float:left;width:33%;list-style-type:none;text-transform:uppercase;color:#999;letter-spacing:1px}
+  ol.man-decor {width:100%}
+  ol.man-decor li.tl {text-align:left}
+  ol.man-decor li.tc {text-align:center;letter-spacing:4px}
+  ol.man-decor li.tr {text-align:right;float:right}
+  </style>
+</head>
+<body>
+<div class='mp'>
+<h1 class='man-title'>git-commitiq(1)</h1>
+<ol class='man-decor man-head man head'>
+  <li class='tl'>Git Extras</li>
+  <li class='tc'>GIT-COMMITIQ(1)</li>
+  <li class='tr'>August 2026</li>
+</ol>
+<h2>NAME</h2>
+<p class='man-name'>
+  <code class='man-name'>git-commitiq</code> - <span class='man-more'>semantic commit summaries as a git subcommand</span>
+</p>
+<h2>SYNOPSIS</h2>
+<p><code class="man-ref">git commitiq</code> [<var>git commit args</var>...]</p>
+<p><code class="man-ref">git commitiq commit</code> [<var>git commit args</var>]</p>
+<p><code class="man-ref">git commitiq setup</code> [<code>--provider</code> <var>p</var>] [<code>--api-key</code> <var>key</var>] [<code>--model</code> <var>m</var>]</p>
+<p><code class="man-ref">git commitiq config</code> <var>get|set|unset|list</var> [<var>key</var> [<var>val</var>]]</p>
+<p><code class="man-ref">git commitiq notes-enable</code> [<var>remote</var>]</p>
+<p><code class="man-ref">git commitiq push</code> [<var>git push args</var>]</p>
+<p><code class="man-ref">git commitiq show</code> <var>sha</var></p>
+<p><code class="man-ref">git commitiq log</code></p>
+<h2>DESCRIPTION</h2>
+<p>Runs a normal <code class="man-ref">git commit</code> and then asks a configured LLM (Anthropic, OpenAI, Gemini, Ollama, a local OpenAI-compatible endpoint, or a local CLI tool) to produce a structured JSON summary of the diff. That summary is attached to the commit as a <a class="man-ref" href="https://git-scm.com/docs/git-notes">git note</a> (<code class="man-ref">refs/notes/commits</code>).</p>
+<p>Because the notes ref is automatically configured on the first commit in a repo, <code class="man-ref">git push</code> / <code class="man-ref">git fetch</code> will include the notes without any manual setup step.</p>
+<h3>Supported providers</h3>
+<dl class='man-decor'>
+  <dt class='flush'>anthropic</dt><dd>Claude models via the Anthropic Messages API</dd>
+  <dt class='flush'>openai</dt><dd>GPT models via the OpenAI Chat Completions API</dd>
+  <dt class='flush'>gemini</dt><dd>Gemini models via the Google Generative Language API</dd>
+  <dt class='flush'>ollama</dt><dd>Local models served by Ollama (no API key needed)</dd>
+  <dt class='flush'>local</dt><dd>Any local server with an OpenAI-compatible /chat/completions endpoint</dd>
+  <dt class='flush'>cli</dt><dd>Any local CLI tool that reads stdin and writes to stdout (e.g. agy, claude, aichat, llm)</dd>
+</dl>
+<h2>OPTIONS</h2>
+<dl class='man-decor'>
+  <dt class='flush'><var>git commit args</var></dt><dd>All arguments are forwarded to <code class="man-ref">git commit</code>. If the commit fails, no LLM call is made and no note is attached.</dd>
+  <dt class='flush'>setup</dt><dd>Interactive setup wizard or non-interactive via flags.</dd>
+  <dt class='flush'>config</dt><dd>Manage provider, model, api_key, endpoint, and command config values.</dd>
+  <dt class='flush'>notes-enable</dt><dd>Configure the repository so <code class="man-ref">git push</code> / <code class="man-ref">git fetch</code> also syncs git notes. Called automatically on the first commitiq commit.</dd>
+  <dt class='flush'>push</dt><dd>Like <code class="man-ref">git push</code>, but also syncs <code class="man-ref">refs/notes/*</code> when appropriate.</dd>
+  <dt class='flush'>show <var>sha</var></dt><dd>Print the stored JSON summary for the given commit.</dd>
+  <dt class='flush'>log</dt><dd>List commits that have a stored summary.</dd>
+</dl>
+<h2>EXAMPLES</h2>
+<p>Commit with an automatic summary:</p>
+<pre><code>$ git commitiq -m "fix login bug"
+</code></pre>
+<p>Set up Anthropic as the provider:</p>
+<pre><code>$ git commitiq setup --provider anthropic --api-key sk-ant-... --model claude-3-5-sonnet-latest
+</code></pre>
+<p>View a stored summary:</p>
+<pre><code>$ git commitiq show a1b2c3
+</code></pre>
+<p>Push commits and notes together:</p>
+<pre><code>$ git commitiq push origin main
+</code></pre>
+<h2>AUTHOR</h2>
+<p>Written by commitiq contributors.</p>
+<h2>REPORTING BUGS</h2>
+<p>&lt;<a href="https://github.com/tj/git-extras/issues" title="issues">https://github.com/tj/git-extras/issues</a>&gt;</p>
+<h2>SEE ALSO</h2>
+<p>&lt;<a href="https://github.com/tj/git-extras" title="git-extras">https://github.com/tj/git-extras</a>&gt;</p>
+<ol class='man-decor man-foot foot'>
+  <li class='tl'>Git Extras</li>
+  <li class='tc'>August 2026</li>
+  <li class='tr'>git-commitiq(1)</li>
+</ol>
+</div>
+</body>
+</html>

@@ -12,6 +12,7 @@
  - [`git clear-soft`](#git-clear-soft)
  - [`git coauthor`](#git-coauthor)
  - [`git commits-since`](#git-commits-since)
+ - [`git commitiq`](#git-commitiq)
  - [`git continue`](#git-continue)
  - [`git contrib`](#git-contrib)
  - [`git count`](#git-count)
@@ -492,6 +493,26 @@ TJ Holowaychuk - Added git-delete-branch
 $ git commits-since yesterday
 ... changes since yesterday
 TJ Holowaychuk - Fixed readme
+```
+
+## git commitiq
+
+Semantic commit summaries as a git subcommand. Runs `git commit` and then asks a configured LLM to produce a structured JSON summary of the diff, stored as a git note.
+
+```bash
+$ git commitiq -m "fix login bug"
+```
+
+Set up a provider:
+
+```bash
+$ git commitiq setup --provider anthropic --api-key sk-ant-... --model claude-3-5-sonnet-latest
+```
+
+View a stored summary:
+
+```bash
+$ git commitiq show a1b2c3
 ```
 
 ## git count
